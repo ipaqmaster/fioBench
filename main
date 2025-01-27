@@ -119,7 +119,7 @@ def main():
     pathBasename = os.path.basename(args.path)
     print("Testing with %s..." % pathBasename)
 
-    outputFileBase    = "results/%s-%s" % (round(time.time()), pathBasename)
+    outputFileBase    = "results/%s-%s-%s" % (round(time.time()), os.uname()[1].split('.')[0], pathBasename)
     outputFile        = "%s.json"       % outputFileBase
     outputFileZfsinfo = "%s.zfsinfo"    % outputFileBase
 
