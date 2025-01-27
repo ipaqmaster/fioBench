@@ -113,6 +113,7 @@ def main():
 
     if not os.access(args.path, os.W_OK):
         printer("No write access to %s" % args.path, 2, args.loglevel)
+        exit(1)
 
     # Get the basenamel directory name 
     pathBasename = os.path.basename(args.path)
