@@ -1,0 +1,171 @@
+#!/usr/bin/env python
+from pathlib import Path
+import argparse
+import glob
+import os
+import subprocess
+import time
+
+_scriptRoot = os.path.dirname(os.path.realpath(__file__))
+_scriptName = _scriptRoot.split('/')[-1]
+_namespace  = _scriptName
+os.chdir(_scriptRoot)
+
+def printer(text, textlevel, loglevel):
+    if textlevel <= loglevel:
+        print(text)
+
+def writeZfsInfo(path, outputFile):
+    """Write additional information about a mountpoint's ZFS properties and pool"""
+    properties = subprocess.run(["zfs", "get", "all", path],             capture_output=True, text=True).stdout.strip("\n")
+    zpool      = subprocess.run(["zpool", "status", path.split('/')[0]], capture_output=True, text=True).stdout.strip("\n")
+
+    # Try to convert any disks listed in the output of zpool status to their by-id names
+    # so the models are visible for benchmarking purposes
+    globresult = glob.glob('/dev/disk/by-id/*')
+    a = []
+    b = []
+    for thing in globresult:
+
+        if   '-eui.' in thing:
+            continue # Drop eui paths as they don't describe the disk model
+        elif '-part' in thing:
+            a.append(thing)
+        else:
+            b.append(thing)
+
+    globresultsorted = a + b
+
+    for thing in globresultsorted:
+        basename = os.path.basename(thing)
+        link = os.path.basename(os.path.abspath(os.readlink(thing)))
+        #print(basename)
+        #print("\t%s" % link)
+        zpool = zpool.replace(link, basename)
+
+    with open(outputFile, 'a') as f:
+        f.write(str(zpool))
+        f.write('\n\n')
+        f.write(str(properties))
+
+
+def main():
+
+    parser = argparse.ArgumentParser(
+        prog='fioBench',
+        description='A series of fio benchmarks for me to gauge zpool performance.',
+        epilog='')
+
+    parser.add_argument(
+            '--debug',
+            action='store_true',
+            default=False,
+            help='Enable debug logging (Implies --loglevel 7)'
+            )
+    
+    parser.add_argument(
+            '--loglevel',
+            default=2,
+            type=int,
+            help='Set the loglevel. Defaults to 2 (Error)'
+            )
+    
+    parser.add_argument(
+            '--path',
+            required=True,
+            help='A file, device or directory to test against'
+            )
+
+    parser.add_argument(
+            '--size',
+            default="10G",
+            help='The size of storage used for each test'
+            )
+
+    parser.add_argument(
+            '--bs',
+            default="4096",
+            help='The blocksize used for testing (Default: 4096)'
+            )
+
+    #parser.add_argument(
+    #        '--mode',
+    #        help='The mode to operate in. If unset the script will do its own set of benchmarks'
+    #        )
+
+
+
+    args = parser.parse_args()
+
+    if args.debug:
+        args.loglevel = 7
+
+    #if not args.mode:
+    #    printer("debug test", 7, args.loglevel)
+
+    if not os.path.isdir('results'):
+        os.mkdir('results')
+
+    # Try to resolve full --path's.
+    args.path = os.path.abspath(args.path)
+
+    # Check if we have write access to the given path or device. Error if not.
+
+    if not os.access(args.path, os.W_OK):
+        printer("No write access to %s" % args.path, 2, args.loglevel)
+
+    # Get the basenamel directory name 
+    pathBasename = os.path.basename(args.path)
+    print("Testing with %s..." % pathBasename)
+
+    outputFileBase    = "results/%s-%s" % (round(time.time()), pathBasename)
+    outputFile        = "%s.json"       % outputFileBase
+    outputFileZfsinfo = "%s.zfsinfo"    % outputFileBase
+
+    # If we're dealing with a zvol, write additional info
+    if args.path.startswith('/dev/zd'):
+
+        resolved = None
+
+        # Attempt to resolve the name of this zfs device
+        for root, dirnames, filenames in os.walk('/dev/zvol'):
+            #print(root, dirnames, filenames)
+            for filename in filenames:
+                fullZvol = '/'.join([root,filename])
+                link = os.path.realpath(fullZvol)
+                if link == args.path:
+                    resolved = '/'.join(fullZvol.split('/')[3:])
+                    break
+
+        if resolved:
+            writeZfsInfo(resolved, outputFileZfsinfo)
+        else:
+            printer("Failed to resolve to zvol name: %s" % args.path, 2, args.loglevel)
+            printer(".zfsinfo file will be unavailable for this run.", 2, args.loglevel)
+
+
+        #writeZfsInfo(mount, outputFileZfsinfo)
+
+    elif args.path.startswith('/dev/zvol/'):
+        mount = '/'.join(args.path.split('/')[3:])
+        writeZfsInfo(mount, outputFileZfsinfo)
+
+    # If we're dealing with a directory or flat-file and zfs write additional info
+    elif os.path.isdir(args.path) or os.path.isfile(args.path):
+
+        # Find the mountpoint for the system
+        mount = subprocess.run(["findmnt", "-n", "-o", "SOURCE", "--target", args.path], capture_output=True, text=True).stdout.strip("\n")
+        print(mount)
+
+        # Find the filesystem type
+        mountType = subprocess.run(["findmnt", "-n", "-o", "fstype", mount], capture_output=True, text=True).stdout.strip("\n")
+        print(mountType)
+
+        # If the filesystem type is ZFS, write the properties of this dataset to a file
+        if mountType == 'zfs':
+            writeZfsInfo(mount, outputFileZfsinfo)
+
+    subprocess.run(["fio", "./fio.cfg", "--size", args.size, "--filename=%s" % args.path, "--output-format=json", "--output", outputFile])
+
+if __name__ == '__main__':
+    main()
