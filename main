@@ -85,30 +85,36 @@ def runBenchmarks(args, outputFileBase):
     parameters['rw']     = "read"
 
     parameters['numjobs'] = 1
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 2
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 4
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     # Read indirect
     parameters['direct']  = 0
 
     parameters['numjobs'] = 1
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 2
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 4
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     # Write direct
@@ -116,30 +122,36 @@ def runBenchmarks(args, outputFileBase):
     parameters['rw']      = "write"
 
     parameters['numjobs'] = 1
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
     
     parameters['numjobs'] = 2
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
     
     parameters['numjobs'] = 4
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
     
     # Write indirect
     parameters['direct']  = 0
 
     parameters['numjobs'] = 1
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 2
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 4
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     # randread direct
@@ -147,30 +159,36 @@ def runBenchmarks(args, outputFileBase):
     parameters['rw']      = "randread"
 
     parameters['numjobs'] = 1
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 2
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 4
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     # randread indirect
     parameters['direct']  = 0
 
     parameters['numjobs'] = 1
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 2
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 4
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
 
@@ -179,30 +197,36 @@ def runBenchmarks(args, outputFileBase):
     parameters['rw']      = "randwrite"
 
     parameters['numjobs'] = 1
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 2
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 4
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     # randwrite indirect
     parameters['direct']  = 0
 
     parameters['numjobs'] = 1
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 2
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 4
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     # randrw direct
@@ -210,30 +234,36 @@ def runBenchmarks(args, outputFileBase):
     parameters['rw']      = "randrw"
 
     parameters['numjobs'] = 1
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 2
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 4
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     # randrw indirect
     parameters['direct']  = 0
 
     parameters['numjobs'] = 1
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 2
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
     parameters['numjobs'] = 4
-    parameters['output']  = "%s_%s.json" % (outputFileBase, generateName(parameters))
+    parameters['name']    = generateName(parameters)
+    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
     runFio(args, parameters)
 
 
