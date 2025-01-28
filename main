@@ -298,7 +298,7 @@ def main():
 
     parser.add_argument(
             '--size',
-            default="10G",
+            default="1G",
             help='The size of storage used for each test'
             )
 
