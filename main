@@ -55,7 +55,7 @@ def generateName(parameters):
     else:
         direct = 'indirect'
 
-    return "%s-%s-%sjob" % (parameters['rw'], direct, parameters['numjobs'])
+    return "%s-%s-%s-%sjob" % (parameters['bs'], parameters['rw'], direct, parameters['numjobs'])
 
 def runFio(args, tests):
     for test in tests:
