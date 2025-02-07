@@ -57,29 +57,22 @@ def generateName(parameters):
 
     return "%s-%s-%sjob" % (parameters['rw'], direct, parameters['numjobs'])
 
-def runFio(args, parameters):
-    flags = ['fio']
-    for key in parameters:
-        flags.append("--%s=%s" % (key, parameters[key]))
+def runFio(args, tests):
+    for test in tests:
+        parameters = test
 
-    printer("Running with flags: %s" % flags, 7, args.loglevel)
+        flags = ['fio']
+        for key in parameters:
+            flags.append("--%s=%s" % (key, parameters[key]))
 
+        printer("Running with flags: %s" % flags, 7, args.loglevel)
 
-    subprocess.run(flags)
-
-def runBenchmarks(args, outputFileBase):
-    parameters = {
-            "direct":        None,
-            "filename":      args.path,
-            "name":          None,
-            "numjobs":       None,
-            "output":        None,
-            "output-format": "json",
-            "rw":            None,
-            "size":          args.size
-            }
+        subprocess.run(flags)
 
 
+def generateTests(parameters, outputFileBase):
+
+    tests = []
     # Read direct
     parameters['direct'] = 1
     parameters['rw']     = "read"
@@ -87,17 +80,17 @@ def runBenchmarks(args, outputFileBase):
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     # Read indirect
     parameters['direct']  = 0
@@ -105,17 +98,17 @@ def runBenchmarks(args, outputFileBase):
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     # Write direct
     parameters['direct']  = 1
@@ -124,17 +117,17 @@ def runBenchmarks(args, outputFileBase):
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
     
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
     
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
     
     # Write indirect
     parameters['direct']  = 0
@@ -142,17 +135,17 @@ def runBenchmarks(args, outputFileBase):
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     # randread direct
     parameters['direct']  = 1
@@ -161,17 +154,17 @@ def runBenchmarks(args, outputFileBase):
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     # randread indirect
     parameters['direct']  = 0
@@ -179,17 +172,17 @@ def runBenchmarks(args, outputFileBase):
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
 
     # randwrite direct
@@ -199,17 +192,17 @@ def runBenchmarks(args, outputFileBase):
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     # randwrite indirect
     parameters['direct']  = 0
@@ -217,17 +210,17 @@ def runBenchmarks(args, outputFileBase):
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     # randrw direct
     parameters['direct']  = 1
@@ -236,17 +229,17 @@ def runBenchmarks(args, outputFileBase):
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     # randrw indirect
     parameters['direct']  = 0
@@ -254,17 +247,53 @@ def runBenchmarks(args, outputFileBase):
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters)
     parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
-    runFio(args, parameters)
+    tests.append(parameters.copy())
+
+    return(tests)
+
+
+
+
+def runBenchmarks(args, outputFileBase):
+    parameters = {
+            "bs":            None,
+            "direct":        None,
+            "filename":      args.path,
+            "name":          None,
+            "numjobs":       None,
+            "output":        None,
+            "output-format": "json",
+            "rw":            None,
+            "size":          None
+            }
+
+
+    tests = []
+    parameters['bs'] = '512'
+    parameters['size'] = '1G'
+    tests = tests + generateTests(parameters, outputFileBase)
+
+    parameters['bs'] = '4096'
+    parameters['size'] = '1G'
+    tests = tests + generateTests(parameters, outputFileBase)
+
+    parameters['bs'] = '1m'
+    parameters['size'] = '10G'
+    tests = tests + generateTests(parameters, outputFileBase)
+
+    print(tests)
+    exit(5)
+    runFio(args, tests)
 
 
 
@@ -297,23 +326,10 @@ def main():
             )
 
     parser.add_argument(
-            '--size',
-            default="1G",
-            help='The size of storage used for each test'
-            )
-
-    parser.add_argument(
             '--bs',
             default="4096",
             help='The blocksize used for testing (Default: 4096)'
             )
-
-    #parser.add_argument(
-    #        '--mode',
-    #        help='The mode to operate in. If unset the script will do its own set of benchmarks'
-    #        )
-
-
 
     args = parser.parse_args()
 
