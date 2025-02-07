@@ -291,8 +291,6 @@ def runBenchmarks(args, outputFileBase):
     parameters['size'] = '10G'
     tests = tests + generateTests(parameters, outputFileBase)
 
-    print(tests)
-    exit(5)
     runFio(args, tests)
 
 
