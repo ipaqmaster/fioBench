@@ -274,7 +274,8 @@ def runBenchmarks(args, outputFileBase):
             "output":        None,
             "output-format": "json",
             "rw":            None,
-            "size":          None
+            "size":          None,
+            "time":          None
             }
 
 
@@ -321,12 +322,6 @@ def main():
             '--path',
             required=True,
             help='A file, device or directory to test against'
-            )
-
-    parser.add_argument(
-            '--bs',
-            default="4096",
-            help='The blocksize used for testing (Default: 4096)'
             )
 
     args = parser.parse_args()
