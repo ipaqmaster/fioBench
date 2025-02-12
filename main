@@ -269,6 +269,7 @@ def runBenchmarks(args, outputFileBase):
             "bs":            None,
             "direct":        None,
             "filename":      args.path,
+            "ioengine":      "libaio",
             "name":          None,
             "numjobs":       None,
             "output":        None,
