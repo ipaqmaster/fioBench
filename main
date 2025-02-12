@@ -4,6 +4,7 @@ import argparse
 import glob
 import os
 import subprocess
+import sys
 import time
 
 _scriptRoot = os.path.dirname(os.path.realpath(__file__))
@@ -13,7 +14,12 @@ os.chdir(_scriptRoot)
 
 def printer(text, textlevel, loglevel):
     if textlevel <= loglevel:
-        print(text)
+        if loglevel > 0:
+            print(text, file=sys.stderr)
+        else:
+            print(text)
+
+
 
 def writeZfsInfo(path, outputFile):
     """Write additional information about a mountpoint's ZFS properties and pool"""
