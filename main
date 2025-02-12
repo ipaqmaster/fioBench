@@ -274,28 +274,24 @@ def runBenchmarks(args, outputFileBase):
             "output":        None,
             "output-format": "json",
             "rw":            None,
-            "size":          None,
-            "time":          None
+            "timeout":          None
             }
 
 
     tests = []
+
+    parameters['timeout'] = '60'
+
     parameters['bs'] = '512'
-    parameters['size'] = '1G'
     tests = tests + generateTests(parameters, outputFileBase)
 
     parameters['bs'] = '4096'
-    parameters['size'] = '1G'
     tests = tests + generateTests(parameters, outputFileBase)
 
     parameters['bs'] = '1m'
-    parameters['size'] = '10G'
     tests = tests + generateTests(parameters, outputFileBase)
 
     runFio(args, tests)
-
-
-
 
 def main():
 
