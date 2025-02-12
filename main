@@ -274,7 +274,9 @@ def runBenchmarks(args, outputFileBase):
             "output":        None,
             "output-format": "json",
             "rw":            None,
-            "timeout":          None
+            "size":          "4G",
+            "timeout":       60,
+            "unlink":        1
             }
 
 
