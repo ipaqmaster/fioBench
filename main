@@ -114,7 +114,7 @@ def runFio(args, tests):
         subprocess.run(flags)
 
 
-def generateTests(parameters, outputFilenameComponents):
+def generateTests(args, parameters, outputFilenameComponents):
 
     tests = []
     # Read direct
@@ -123,17 +123,17 @@ def generateTests(parameters, outputFilenameComponents):
 
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     # Read indirect
@@ -141,17 +141,17 @@ def generateTests(parameters, outputFilenameComponents):
 
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     # Write direct
@@ -160,17 +160,17 @@ def generateTests(parameters, outputFilenameComponents):
 
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
     
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
     
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
     
     # Write indirect
@@ -178,17 +178,17 @@ def generateTests(parameters, outputFilenameComponents):
 
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     # randread direct
@@ -197,17 +197,17 @@ def generateTests(parameters, outputFilenameComponents):
 
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     # randread indirect
@@ -215,17 +215,17 @@ def generateTests(parameters, outputFilenameComponents):
 
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
 
@@ -235,17 +235,17 @@ def generateTests(parameters, outputFilenameComponents):
 
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     # randwrite indirect
@@ -253,17 +253,17 @@ def generateTests(parameters, outputFilenameComponents):
 
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     # randrw direct
@@ -272,17 +272,17 @@ def generateTests(parameters, outputFilenameComponents):
 
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     # randrw indirect
@@ -290,17 +290,18 @@ def generateTests(parameters, outputFilenameComponents):
 
     parameters['numjobs'] = 1
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
     parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s.json" % parameters['name']
+    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
+    parameters['unlink']  = 1
     tests.append(parameters.copy())
 
     return(tests)
@@ -319,22 +320,20 @@ def runBenchmarks(args, outputFilenameComponents):
             "rw":            None,
             "size":          "4G",
             "timeout":       60,
-            "unlink":        1
+            "unlink":        0
             }
 
 
     tests = []
 
-    parameters['timeout'] = '60'
-
     parameters['bs'] = '512'
-    tests = tests + generateTests(parameters, outputFilenameComponents)
+    tests = tests + generateTests(args, parameters, outputFilenameComponents)
 
     parameters['bs'] = '4096'
-    tests = tests + generateTests(parameters, outputFilenameComponents)
+    tests = tests + generateTests(args, parameters, outputFilenameComponents)
 
     parameters['bs'] = '1m'
-    tests = tests + generateTests(parameters, outputFilenameComponents)
+    tests = tests + generateTests(args, parameters, outputFilenameComponents)
 
     runFio(args, tests)
 
