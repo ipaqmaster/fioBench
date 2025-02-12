@@ -92,8 +92,8 @@ def generateName(parameters, outputFilenameComponents):
     outputFilenameComponentsLocal['numjobs'] = "%sjob" % parameters['numjobs']
 
     keys = []
-    for key in outputFilenameComponents:
-        keys.append(str(outputFilenameComponents[key]))
+    for key in outputFilenameComponentsLocal:
+        keys.append(str(outputFilenameComponentsLocal[key]))
 
     return('_'.join(keys))
 
