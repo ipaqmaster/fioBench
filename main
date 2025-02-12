@@ -20,48 +20,82 @@ def printer(text, textlevel, loglevel):
             print(text)
 
 
+def resolveZvol(path):
+    zvol = None
+    # Attempt to resolve the name of this zfs device
+    for root, dirnames, filenames in os.walk('/dev/zvol'):
+        for filename in filenames:
+            fullZvol = '/'.join([root,filename])
+            link = os.path.realpath(fullZvol)
+            if link == args.path:
+                zvol = '/'.join(fullZvol.split('/')[3:])
+                break
 
-def writeZfsInfo(path, outputFile):
+    return(zvol)
+
+def writeZfsInfo(args, dataset, outputFilenameComponents):
     """Write additional information about a mountpoint's ZFS properties and pool"""
-    properties = subprocess.run(["zfs", "get", "all", path],             capture_output=True, text=True).stdout.strip("\n")
-    zpool      = subprocess.run(["zpool", "status", path.split('/')[0]], capture_output=True, text=True).stdout.strip("\n")
+    try:
+        properties = subprocess.run(["zfs", "get", "all", dataset],             capture_output=True, text=True).stdout.strip("\n")
+        zpool      = subprocess.run(["zpool", "status", dataset.split('/')[0]], capture_output=True, text=True).stdout.strip("\n")
 
-    # Try to convert any disks listed in the output of zpool status to their by-id names
-    # so the models are visible for benchmarking purposes
-    globresult = glob.glob('/dev/disk/by-id/*')
-    a = []
-    b = []
-    for thing in globresult:
+        # Try to convert any disks listed in the output of zpool status to their by-id names
+        # so the models are visible for benchmarking purposes
+        globresult = glob.glob('/dev/disk/by-id/*')
+        a = []
+        b = []
+        for thing in globresult:
+    
+            if   '-eui.' in thing:
+                continue # Drop eui datasets as they don't describe the disk model
+            elif '-part' in thing:
+                a.append(thing)
+            else:
+                b.append(thing)
 
-        if   '-eui.' in thing:
-            continue # Drop eui paths as they don't describe the disk model
-        elif '-part' in thing:
-            a.append(thing)
-        else:
-            b.append(thing)
+        globresultsorted = a + b
 
-    globresultsorted = a + b
+        for thing in globresultsorted:
+            basename = os.path.basename(thing)
+            link = os.path.basename(os.path.abspath(os.readlink(thing)))
+            zpool = zpool.replace(link, basename)
 
-    for thing in globresultsorted:
-        basename = os.path.basename(thing)
-        link = os.path.basename(os.path.abspath(os.readlink(thing)))
-        #print(basename)
-        #print("\t%s" % link)
-        zpool = zpool.replace(link, basename)
 
-    with open(outputFile, 'a') as f:
-        f.write(str(zpool))
-        f.write('\n\n')
-        f.write(str(properties))
+        # Generate the output filename from the components we've put together
+        keys = []
+        for key in outputFilenameComponents:
+            keys.append(str(outputFilenameComponents[key]))
 
-def generateName(parameters):
+        outputFile = "%s/%s.zfsinfo" % (args.output, '_'.join(keys))
+
+        with open(outputFile, 'a') as f:
+            f.write(str(zpool))
+            f.write('\n\n')
+            f.write(str(properties))
+
+        return(True)
+    except Exception as e:
+        printer("Failed to write ZFS info: %s" % e, 2, args.loglevel)
+        return(False)
+
+def generateName(parameters, outputFilenameComponents):
+
+    outputFilenameComponentsLocal = outputFilenameComponents.copy()
 
     if parameters['direct']:
         direct = 'direct'
     else:
         direct = 'indirect'
 
-    return "%s-%s-%s-%sjob" % (parameters['bs'], parameters['rw'], direct, parameters['numjobs'])
+    outputFilenameComponentsLocal['bs']      = parameters['bs']
+    outputFilenameComponentsLocal['rw']      = parameters['rw']
+    outputFilenameComponentsLocal['numjobs'] = "%sjob" % parameters['numjobs']
+
+    keys = []
+    for key in outputFilenameComponents:
+        keys.append(str(outputFilenameComponents[key]))
+
+    return('_'.join(keys))
 
 def runFio(args, tests):
     inc = 0
@@ -80,7 +114,7 @@ def runFio(args, tests):
         subprocess.run(flags)
 
 
-def generateTests(parameters, outputFileBase):
+def generateTests(parameters, outputFilenameComponents):
 
     tests = []
     # Read direct
@@ -88,36 +122,36 @@ def generateTests(parameters, outputFileBase):
     parameters['rw']     = "read"
 
     parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     # Read indirect
     parameters['direct']  = 0
 
     parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     # Write direct
@@ -125,36 +159,36 @@ def generateTests(parameters, outputFileBase):
     parameters['rw']      = "write"
 
     parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
     
     parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
     
     parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
     
     # Write indirect
     parameters['direct']  = 0
 
     parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     # randread direct
@@ -162,36 +196,36 @@ def generateTests(parameters, outputFileBase):
     parameters['rw']      = "randread"
 
     parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     # randread indirect
     parameters['direct']  = 0
 
     parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
 
@@ -200,36 +234,36 @@ def generateTests(parameters, outputFileBase):
     parameters['rw']      = "randwrite"
 
     parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     # randwrite indirect
     parameters['direct']  = 0
 
     parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     # randrw direct
@@ -237,44 +271,42 @@ def generateTests(parameters, outputFileBase):
     parameters['rw']      = "randrw"
 
     parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     # randrw indirect
     parameters['direct']  = 0
 
     parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters)
-    parameters['output']  = "%s_%s.json" % (outputFileBase, parameters['name'])
+    parameters['name']    = generateName(parameters, outputFilenameComponents)
+    parameters['output']  = "%s.json" % parameters['name']
     tests.append(parameters.copy())
 
     return(tests)
 
+def runBenchmarks(args, outputFilenameComponents):
 
-
-
-def runBenchmarks(args, outputFileBase):
     parameters = {
             "bs":            None,
             "direct":        None,
@@ -296,13 +328,13 @@ def runBenchmarks(args, outputFileBase):
     parameters['timeout'] = '60'
 
     parameters['bs'] = '512'
-    tests = tests + generateTests(parameters, outputFileBase)
+    tests = tests + generateTests(parameters, outputFilenameComponents)
 
     parameters['bs'] = '4096'
-    tests = tests + generateTests(parameters, outputFileBase)
+    tests = tests + generateTests(parameters, outputFilenameComponents)
 
     parameters['bs'] = '1m'
-    tests = tests + generateTests(parameters, outputFileBase)
+    tests = tests + generateTests(parameters, outputFilenameComponents)
 
     runFio(args, tests)
 
@@ -326,6 +358,13 @@ def main():
             type=int,
             help='Set the loglevel. Defaults to 2 (Error)'
             )
+
+    parser.add_argument(
+            '--output',
+            default='results',
+            type=str,
+            help='A directory for results. Default: results'
+            )
     
     parser.add_argument(
             '--path',
@@ -333,7 +372,9 @@ def main():
             help='A file, device or directory to test against'
             )
 
-    args = parser.parse_args()
+    args      = parser.parse_args()
+    args.path = os.path.abspath(args.path)
+    ZFS       = None
 
     if args.debug:
         args.loglevel = 7
@@ -341,86 +382,57 @@ def main():
     #if not args.mode:
     #    printer("debug test", 7, args.loglevel)
 
-    if not os.path.isdir('results'):
-        os.mkdir('results')
+    if not os.path.isdir(args.output):
+        os.mkdir(args.output)
 
-    hostname = os.uname()[1].split('.')[0]
+    hostname    = os.uname()[1].split('.')[0]
+    args.output = "%s/%s" % (args.output, hostname)
 
-    resultsPath = 'results/%s' % hostname
+    if not os.path.isdir(args.output):
+        os.mkdir(args.output)
 
-    if not os.path.isdir(resultsPath):
-        os.mkdir(resultsPath)
-
-    # Try to resolve full --path's.
-    args.path = os.path.abspath(args.path)
-
-    # Get the basenamel directory name 
-    pathBasename = os.path.basename(args.path)
-    print("Testing with %s..." % pathBasename)
-
-
-    # Find the mountpoint for the system
     source = subprocess.run(["findmnt", "-n", "-o", "SOURCE", "--target", os.path.dirname(args.path)], capture_output=True, text=True).stdout.strip("\n")
-    print("source: %s" % source)
-
-    # Find the filesystem type
     fstype = subprocess.run(["findmnt", "-n", "-o", "fstype", source], capture_output=True, text=True).stdout.strip("\n")
-    print("fstype:  %s" % fstype)
 
-
-    if source.startswith('dev') or fstype.startswith('dev'):
-        type = 'device'
-    else:
-        type = fstype
-
-    outputFilenameComponents = {
-            "timestamp": round(time.time()),
-            "hostname": hostname,
-            "type": type,
-            "item": os.path.basename(args.path)
-            }
-
-    keys = []
-    for key in outputFilenameComponents:
-        keys.append(str(outputFilenameComponents[key]))
-
-    outputFileBase = "%s/%s" % (resultsPath, '_'.join(keys))
-    outputFileZfsinfo = "%s.zfsinfo"    % outputFileBase
-
-    # Write an additional ZFS information file if relevant.
-    if fstype == 'zfs':
-        writeZfsInfo(mount, outputFileZfsinfo)
-
+    if args.path.startswith('/dev/zvol/'):
+        fstype = 'zvol'
+        ZFS = '/'.join(args.path.split('/')[3:])
     elif args.path.startswith('/dev/zd'):
-
-        resolved = None
-
-        # Attempt to resolve the name of this zfs device
-        for root, dirnames, filenames in os.walk('/dev/zvol'):
-            #print(root, dirnames, filenames)
-            for filename in filenames:
-                fullZvol = '/'.join([root,filename])
-                link = os.path.realpath(fullZvol)
-                if link == args.path:
-                    resolved = '/'.join(fullZvol.split('/')[3:])
-                    break
-
-        if resolved:
-            writeZfsInfo(resolved, outputFileZfsinfo)
+        zvol = resolveZvol(args.path)
+        if zvol:
+            ZFS = zvol
         else:
             printer("Failed to resolve to zvol name: %s" % args.path, 2, args.loglevel)
             printer(".zfsinfo file will be unavailable for this run.", 2, args.loglevel)
 
+    elif fstype == 'zfs':
+        ZFS    = source
+        fstype = fstype
 
-    elif args.path.startswith('/dev/zvol/'):
-        mount = '/'.join(args.path.split('/')[3:])
-        writeZfsInfo(mount, outputFileZfsinfo)
+    elif source.startswith('dev') or fstype.startswith('dev'):
+        fstype = 'dev'
+
+    else:
+        fstype = fstype
 
 
+    print("Testing:\t%s" % args.path)
+    print("source:\t\t%s" % source)
+    print("fstype:\t\t%s" % fstype)
 
-    exit(5)
+    outputFilenameComponents = {
+            "timestamp": round(time.time()),
+            "hostname": hostname,
+            "type": fstype,
+            "item": os.path.basename(args.path)
+            }
 
-    runBenchmarks(args, outputFileBase)
+    
+    # Write an additional ZFS information file if relevant.
+    if ZFS:
+        writeZfsInfo(args, ZFS, outputFilenameComponents)
+
+    runBenchmarks(args, outputFilenameComponents)
 
 if __name__ == '__main__':
     main()
