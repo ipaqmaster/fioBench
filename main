@@ -58,7 +58,11 @@ def generateName(parameters):
     return "%s-%s-%s-%sjob" % (parameters['bs'], parameters['rw'], direct, parameters['numjobs'])
 
 def runFio(args, tests):
+    inc = 0
+    total = len(tests)
     for test in tests:
+        inc = inc + 1
+        printer("Running test %s/%s" % (inc, total), 1, args.loglevel)
         parameters = test
 
         flags = ['fio']
@@ -334,6 +338,13 @@ def main():
     if not os.path.isdir('results'):
         os.mkdir('results')
 
+    hostname = os.uname()[1].split('.')[0]
+
+    resultsPath = 'results/%s' % hostname
+
+    if not os.path.isdir(resultsPath):
+        os.mkdir(resultsPath)
+
     # Try to resolve full --path's.
     args.path = os.path.abspath(args.path)
 
@@ -341,11 +352,40 @@ def main():
     pathBasename = os.path.basename(args.path)
     print("Testing with %s..." % pathBasename)
 
-    outputFileBase    = "results/%s-%s-%s" % (round(time.time()), os.uname()[1].split('.')[0], pathBasename)
+
+    # Find the mountpoint for the system
+    source = subprocess.run(["findmnt", "-n", "-o", "SOURCE", "--target", os.path.dirname(args.path)], capture_output=True, text=True).stdout.strip("\n")
+    print("source: %s" % source)
+
+    # Find the filesystem type
+    fstype = subprocess.run(["findmnt", "-n", "-o", "fstype", source], capture_output=True, text=True).stdout.strip("\n")
+    print("fstype:  %s" % fstype)
+
+
+    if source.startswith('dev') or fstype.startswith('dev'):
+        type = 'device'
+    else:
+        type = fstype
+
+    outputFilenameComponents = {
+            "timestamp": round(time.time()),
+            "hostname": hostname,
+            "type": type,
+            "item": os.path.basename(args.path)
+            }
+
+    keys = []
+    for key in outputFilenameComponents:
+        keys.append(str(outputFilenameComponents[key]))
+
+    outputFileBase = "%s/%s" % (resultsPath, '_'.join(keys))
     outputFileZfsinfo = "%s.zfsinfo"    % outputFileBase
 
-    # If we're dealing with a zvol, write additional info
-    if args.path.startswith('/dev/zd'):
+    # Write an additional ZFS information file if relevant.
+    if fstype == 'zfs':
+        writeZfsInfo(mount, outputFileZfsinfo)
+
+    elif args.path.startswith('/dev/zd'):
 
         resolved = None
 
@@ -371,21 +411,8 @@ def main():
         writeZfsInfo(mount, outputFileZfsinfo)
 
 
-    # Check the mount type of the path directory for ZFS
-    elif os.path.isdir(os.path.dirname(args.path)):
 
-        # Find the mountpoint for the system
-        mount = subprocess.run(["findmnt", "-n", "-o", "SOURCE", "--target", args.path], capture_output=True, text=True).stdout.strip("\n")
-        print(mount)
-
-        # Find the filesystem type
-        mountType = subprocess.run(["findmnt", "-n", "-o", "fstype", mount], capture_output=True, text=True).stdout.strip("\n")
-        print(mountType)
-
-        # If the filesystem type is ZFS, write the properties of this dataset to a file
-        if mountType == 'zfs':
-            writeZfsInfo(mount, outputFileZfsinfo)
-
+    exit(5)
 
     runBenchmarks(args, outputFileBase)
 
