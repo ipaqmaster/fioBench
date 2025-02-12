@@ -366,14 +366,13 @@ def main():
             printer(".zfsinfo file will be unavailable for this run.", 2, args.loglevel)
 
 
-        #writeZfsInfo(mount, outputFileZfsinfo)
-
     elif args.path.startswith('/dev/zvol/'):
         mount = '/'.join(args.path.split('/')[3:])
         writeZfsInfo(mount, outputFileZfsinfo)
 
-    # If we're dealing with a directory or flat-file and zfs write additional info
-    elif os.path.isdir(args.path) or os.path.isfile(args.path):
+
+    # Check the mount type of the path directory for ZFS
+    elif os.path.isdir(os.path.dirname(args.path)):
 
         # Find the mountpoint for the system
         mount = subprocess.run(["findmnt", "-n", "-o", "SOURCE", "--target", args.path], capture_output=True, text=True).stdout.strip("\n")
