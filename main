@@ -88,6 +88,7 @@ def generateName(parameters, outputFilenameComponents):
         direct = 'indirect'
 
     outputFilenameComponentsLocal['bs']      = parameters['bs']
+    outputFilenameComponentsLocal['direct']  = direct
     outputFilenameComponentsLocal['rw']      = parameters['rw']
     outputFilenameComponentsLocal['numjobs'] = "%sjob" % parameters['numjobs']
 
