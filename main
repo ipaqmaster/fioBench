@@ -45,7 +45,7 @@ def writeZfsInfo(args, dataset, outputFilenameComponents):
         a = []
         b = []
         for thing in globresult:
-    
+
             if   '-eui.' in thing:
                 continue # Drop eui datasets as they don't describe the disk model
             elif '-part' in thing:
@@ -113,197 +113,209 @@ def runFio(args, tests):
         printer("Running with flags: %s" % flags, 7, args.loglevel)
 
         subprocess.run(flags)
+        print(f'Results written to: {test['output']}')
+        print()
 
 
 def generateTests(args, parameters, outputFilenameComponents):
-
     tests = []
-    # Read direct
-    parameters['direct'] = 1
-    parameters['rw']     = "read"
 
-    parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        # Largest mode
+    if args.mode == 'default':
 
-    parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        # Read direct
+        parameters['direct'] = 1
+        parameters['rw']     = "read"
 
-    parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 1
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    # Read indirect
-    parameters['direct']  = 0
+        parameters['numjobs'] = 2
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 4
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        # Read indirect
+        parameters['direct']  = 0
 
-    parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 1
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    # Write direct
-    parameters['direct']  = 1
-    parameters['rw']      = "write"
+        parameters['numjobs'] = 2
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
-    
-    parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
-    
-    parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
-    
-    # Write indirect
-    parameters['direct']  = 0
+        parameters['numjobs'] = 4
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        # Write direct
+        parameters['direct']  = 1
+        parameters['rw']      = "write"
 
-    parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 1
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 2
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    # randread direct
-    parameters['direct']  = 1
-    parameters['rw']      = "randread"
+        parameters['numjobs'] = 4
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        # Write indirect
+        parameters['direct']  = 0
 
-    parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 1
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 2
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    # randread indirect
-    parameters['direct']  = 0
+        parameters['numjobs'] = 4
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        # randread direct
+        parameters['direct']  = 1
+        parameters['rw']      = "randread"
 
-    parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 1
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 2
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
+
+        parameters['numjobs'] = 4
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
+
+        # randread indirect
+        parameters['direct']  = 0
+
+        parameters['numjobs'] = 1
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
+
+        parameters['numjobs'] = 2
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
+
+        parameters['numjobs'] = 4
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
 
-    # randwrite direct
-    parameters['direct']  = 1
-    parameters['rw']      = "randwrite"
+        # randwrite direct
+        parameters['direct']  = 1
+        parameters['rw']      = "randwrite"
 
-    parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 1
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 2
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 4
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    # randwrite indirect
-    parameters['direct']  = 0
+        # randwrite indirect
+        parameters['direct']  = 0
 
-    parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 1
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 2
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 4
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    # randrw direct
-    parameters['direct']  = 1
-    parameters['rw']      = "randrw"
+        # randrw direct
+        parameters['direct']  = 1
+        parameters['rw']      = "randrw"
 
-    parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 1
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 2
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 4
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    # randrw indirect
-    parameters['direct']  = 0
+        # randrw indirect
+        parameters['direct']  = 0
 
-    parameters['numjobs'] = 1
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 1
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 2
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 2
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        tests.append(parameters.copy())
 
-    parameters['numjobs'] = 4
-    parameters['name']    = generateName(parameters, outputFilenameComponents)
-    parameters['output']  = "%s/%s.json" % (args.output, parameters['name'])
-    parameters['unlink']  = 1
-    tests.append(parameters.copy())
+        parameters['numjobs'] = 4
+        parameters['name']    = generateName(parameters, outputFilenameComponents)
+        parameters['output']  = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+        parameters['unlink']  = 1
+        tests.append(parameters.copy())
+
+    elif args.mode == 'short':
+        pass
+
+    else:
+        print(f'Unsupported mode: {args.mode}')
+        exit(1)
 
     return(tests)
 
@@ -317,7 +329,7 @@ def runBenchmarks(args, outputFilenameComponents):
             "name":          None,
             "numjobs":       None,
             "output":        None,
-            "output-format": "json",
+            "output-format": args.output_format,
             "rw":            None,
             "size":          "4G",
             "timeout":       60,
@@ -326,15 +338,79 @@ def runBenchmarks(args, outputFilenameComponents):
 
 
     tests = []
+    if args.mode == 'short':
 
-    parameters['bs'] = '512'
-    tests = tests + generateTests(args, parameters, outputFilenameComponents)
+        # Quick mode. Replicate Crystal Disk Mark's Default mode and test settings
+        # Default:Default is the below 4x2 Read Write tests:
+        #   # SEQ1M_Q8  T1
+        #   # SEQ1M_Q1  T1
+        #   # RND4K_Q32 T1
+        #   # RND4K_Q1  T1
+                #Type  #BS   #QD   #Threads
+        jobs = [
+                    {"type": 'SEQ', 'block_size': '1M', 'queue_depth': '8',  'threads': 1},
+                    {"type": 'SEQ', 'block_size': '1M', 'queue_depth': '1',  'threads': 1},
+                    {"type": 'RND', 'block_size': '4K', 'queue_depth': '32', 'threads': 1},
+                    {"type": 'RND', 'block_size': '4K', 'queue_depth': '1',  'threads': 1}
+                    # The originals
+                    #["SEQ", "1M", "8",  "1"],
+                    #["SEQ", "1M", "1",  "1"],
+                    #["RND", "4K", "32", "1"],
+                    #["RND", "4K", "1",  "1"]
+                ]
 
-    parameters['bs'] = '4096'
-    tests = tests + generateTests(args, parameters, outputFilenameComponents)
+        # Map Crystal Disk Mark naming scheme to fio.
+        # Could just set Type to these above but want to be neat.
+        mappings = {
+                "SEQ": {
+                    "rwType": {
+                        "read": "read",
+                        "write": "write",
+                        },
+                    },
+                "RND": {
+                    "rwType": {
+                        "read": "randread",
+                        "write": "randwrite",
+                        }
+                    },
+                }
 
-    parameters['bs'] = '1m'
-    tests = tests + generateTests(args, parameters, outputFilenameComponents)
+
+        for jobArray in jobs:
+            for testType in ['read','write']: # Run each job as a read test, then a write test
+                # All of them are 1 thread
+                parameters['numjobs'] = 1
+                parameters['rw']      = mappings[jobArray['type']]['rwType'][testType]
+
+                # Assuming they're direct? Will compare both types later.
+                #parameters['direct']  = jobArray[3]
+                parameters['direct']  = 0
+
+                parameters['bs']   = jobArray['block_size']
+                parameters['iodepth']     = jobArray['queue_depth']
+
+                parameters['name']        = generateName(parameters, outputFilenameComponents)
+                #parameters['output']      = f"%s/{'_'.join(jobArray)}.json" % (args.output, parameters['name'])
+                parameters['output']      = f"%s/%s.{args.output_format}" % (args.output, parameters['name'])
+                if args.debug:
+                    print(parameters)
+                tests.append(parameters.copy())
+
+
+
+
+    elif args.mode == 'default':
+        params = parameters.copy()
+
+        params['bs'] = '512'
+        tests = tests + generateTests(args, params, outputFilenameComponents)
+
+        params['bs'] = '4096'
+        tests = tests + generateTests(args, params, outputFilenameComponents)
+
+        params['bs'] = '1m'
+        tests = tests + generateTests(args, params, outputFilenameComponents)
 
     runFio(args, tests)
 
@@ -351,7 +427,7 @@ def main():
             default=False,
             help='Enable debug logging (Implies --loglevel 7)'
             )
-    
+
     parser.add_argument(
             '--loglevel',
             default=2,
@@ -365,11 +441,27 @@ def main():
             type=str,
             help='A directory for results. Default: results'
             )
-    
+
     parser.add_argument(
             '--path',
             required=True,
             help='A file, device or directory to test against'
+            )
+
+    parser.add_argument(
+            '--mode',
+            choices=['default','short'],
+            type=str,
+            default='short',
+            help='Only do a few short tests, replicating the tests of CrystalDiskMark'
+            )
+
+    parser.add_argument(
+            '--output-format',
+            choices=['normal','terse', 'json', 'json+'],
+            type=str,
+            default='json',
+            help='Only do a few short tests, replicating the tests of CrystalDiskMark'
             )
 
     args      = parser.parse_args()
@@ -392,7 +484,10 @@ def main():
         os.mkdir(args.output)
 
     source = subprocess.run(["findmnt", "-n", "-o", "SOURCE", "--target", os.path.dirname(args.path)], capture_output=True, text=True).stdout.strip("\n")
-    fstype = subprocess.run(["findmnt", "-n", "-o", "fstype", source], capture_output=True, text=True).stdout.strip("\n")
+    if source == 'tmpfs':
+        fstype = source
+    else:
+        fstype = subprocess.run(["findmnt", "-n", "-o", "fstype", source], capture_output=True, text=True).stdout.strip("\n")
 
     if args.path.startswith('/dev/zvol/'):
         fstype = 'zvol'
@@ -427,7 +522,7 @@ def main():
             "item": os.path.basename(args.path)
             }
 
-    
+
     # Write an additional ZFS information file if relevant.
     if ZFS:
         writeZfsInfo(args, ZFS, outputFilenameComponents)
