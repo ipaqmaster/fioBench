@@ -90,7 +90,8 @@ def generateName(parameters, outputFilenameComponents):
     outputFilenameComponentsLocal['bs']      = parameters['bs']
     outputFilenameComponentsLocal['direct']  = direct
     outputFilenameComponentsLocal['rw']      = parameters['rw']
-    outputFilenameComponentsLocal['numjobs'] = "%sjob" % parameters['numjobs']
+    outputFilenameComponentsLocal['numjobs'] = "%sjob"      % parameters['numjobs']
+    outputFilenameComponentsLocal['iodepth'] = "iodepth=%s" %  parameters['iodepth']
 
     keys = []
     for key in outputFilenameComponentsLocal:
